@@ -1,114 +1,97 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kasir Indomaret</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-<link href="style.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaundryKu - Aplikasi Manajemen Laundry</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<nav class="topbar py-2 mb-3">
-  <div class="container-fluid px-3 d-flex flex-wrap align-items-center gap-3">
-    <div class="fs-4 brand"><i class="bi bi-shop"></i> INDO<span class="r">MARET</span> <small class="fs-6 fw-normal">Kasir</small></div>
-    <div class="ms-auto d-flex align-items-center gap-3">
-      <span id="jam" class="fw-semibold"></span>
-      <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalRiwayat"><i class="bi bi-clock-history"></i> Riwayat</button>
-    </div>
-  </div>
-</nav>
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+        <h1>🧺 LaundryKu</h1>
+        <p>Kelola pesanan laundry dengan mudah dan cepat!</p>
+    </header>
 
-<div class="container-fluid px-3">
-  <div class="row g-3">
-    <!-- KIRI: PRODUK -->
-    <div class="col-lg-8">
-      <div class="row g-2 mb-3">
-        <div class="col-md-7">
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
-            <input id="cari" class="form-control" placeholder="Scan barcode / cari nama barang (Enter untuk tambah)" autofocus>
-          </div>
-        </div>
-        <div class="col-md-5 kategori d-flex flex-wrap gap-1" id="kategori"></div>
-      </div>
-      <div class="row g-2" id="grid"></div>
-    </div>
+    <main class="app-main">
 
-    <!-- KANAN: KERANJANG -->
-    <div class="col-lg-4">
-      <div class="card shadow-sm keranjang">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-          <strong><i class="bi bi-cart3"></i> Keranjang <span class="badge bg-danger" id="jumlahItem">0</span></strong>
-          <button class="btn btn-sm btn-outline-danger" onclick="kosongkan()"><i class="bi bi-trash"></i> Kosongkan</button>
-        </div>
-        <div class="daftar list-group list-group-flush" id="daftarKeranjang"></div>
-        <div class="card-body border-top">
-          <div class="d-flex justify-content-between"><span>Subtotal</span><span id="subtotal">Rp 0</span></div>
-          <div class="d-flex justify-content-between align-items-center my-1">
-            <span>Diskon (%)</span>
-            <input type="number" id="diskon" class="form-control form-control-sm text-end" style="width:80px" min="0" max="100" value="0">
-          </div>
-          <div class="d-flex justify-content-between"><span>PPN 11%</span><span id="ppn">Rp 0</span></div>
-          <div class="total-box d-flex justify-content-between align-items-center mt-2">
-            <span>TOTAL</span><span class="nilai" id="total">Rp 0</span>
-          </div>
-          <button class="btn btn-danger btn-lg w-100 mt-2" id="btnBayar" onclick="bukaBayar()"><i class="bi bi-cash-coin"></i> Bayar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+        <!-- ===== FORMULIR TAMBAH / EDIT PESANAN ===== -->
+        <section class="card form-card">
+            <h2 id="judul-form">✏️ Tambah Pesanan Baru</h2>
 
-<!-- MODAL BAYAR (TUNAI) -->
-<div class="modal fade" id="modalBayar" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white"><h5 class="modal-title">Pembayaran</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <div class="text-center mb-3"><div class="text-muted">Total belanja</div><div class="fs-2 fw-bold text-danger" id="bayarTotal"></div></div>
-        <div id="boxUang">
-          <label class="form-label">Uang tunai diterima</label>
-          <input type="number" id="uang" class="form-control form-control-lg mb-2" min="0" oninput="hitungKembali()" placeholder="Masukkan nominal uang">
-          <div class="d-flex flex-wrap gap-1 mb-2" id="uangCepat"></div>
-        </div>
-        <div class="d-flex justify-content-between fs-5"><span>Kembalian</span><strong id="kembali" class="text-success">Rp 0</strong></div>
-        <div class="text-danger small mt-2" id="errBayar"></div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-success" onclick="prosesBayar()"><i class="bi bi-check2-circle"></i> Selesaikan</button></div>
-    </div>
-  </div>
-</div>
+            <form id="form-laundry">
+                <!-- Input tersembunyi untuk menyimpan ID saat mengedit -->
+                <input type="hidden" id="edit-id" value="">
 
-<!-- MODAL STRUK -->
-<div class="modal fade" id="modalStruk" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:380px">
-    <div class="modal-content">
-      <div class="modal-body"><div id="struk"></div></div>
-      <div class="modal-footer"><button class="btn btn-danger" onclick="buatPDF(trxTerakhir)"><i class="bi bi-file-earmark-pdf"></i> Simpan PDF</button><button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> Cetak</button><button class="btn btn-primary" data-bs-dismiss="modal">Transaksi baru</button></div>
-    </div>
-  </div>
-</div>
+                <div class="form-group">
+                    <label for="nama-pelanggan">Nama Pelanggan:</label>
+                    <input type="text" id="nama-pelanggan" placeholder="Contoh: Budi Santoso" required>
+                </div>
 
-<!-- MODAL RIWAYAT -->
-<div class="modal fade" id="modalRiwayat" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Riwayat transaksi</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <div class="alert alert-info py-2">Omzet hari ini: <strong id="omzet">Rp 0</strong></div>
-        <div class="table-responsive"><table class="table table-sm table-striped align-middle">
-          <thead><tr><th>No</th><th>Waktu</th><th>Item</th><th>Bayar</th><th class="text-end">Total</th><th></th></tr></thead>
-          <tbody id="tabelRiwayat"></tbody></table></div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-outline-danger" onclick="hapusRiwayat()">Hapus riwayat</button><button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button></div>
-    </div>
-  </div>
-</div>
+                <div class="form-group">
+                    <label for="berat-kg">Berat Cucian (kg):</label>
+                    <input type="number" id="berat-kg" placeholder="Contoh: 3" min="1" required>
+                </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="script.js"></script>
+                <div class="form-group">
+                    <label for="status-cuci">Status:</label>
+                    <select id="status-cuci">
+                        <option value="Antri">🕐 Antri</option>
+                        <option value="Proses">⚙️ Proses</option>
+                        <option value="Selesai">✅ Selesai</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-simpan">
+                        + Tambah Pesanan
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-batal" onclick="batalEdit()">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ===== RINGKASAN STATISTIK ===== -->
+        <section class="stats-grid">
+            <div class="stat-card stat-total">
+                <span class="stat-angka" id="total-pesanan">0</span>
+                <span class="stat-label">Total Pesanan</span>
+            </div>
+            <div class="stat-card stat-antri">
+                <span class="stat-angka" id="total-antri">0</span>
+                <span class="stat-label">🕐 Antri</span>
+            </div>
+            <div class="stat-card stat-proses">
+                <span class="stat-angka" id="total-proses">0</span>
+                <span class="stat-label">⚙️ Diproses</span>
+            </div>
+            <div class="stat-card stat-selesai">
+                <span class="stat-angka" id="total-selesai">0</span>
+                <span class="stat-label">✅ Selesai</span>
+            </div>
+        </section>
+
+        <!-- ===== TABEL DAFTAR PESANAN ===== -->
+        <section class="card table-card">
+            <div class="table-header">
+                <h2>📋 Daftar Pesanan</h2>
+                <button class="btn btn-danger-outline" onclick="hapusSemua()">
+                    🗑️ Hapus Semua
+                </button>
+            </div>
+            <div id="wadah-pesanan">
+                <!-- Kartu pesanan akan dicetak oleh JavaScript di sini -->
+                <div class="empty-state">
+                    <p>📭 Belum ada pesanan. Tambahkan pesanan pertama di atas!</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>
