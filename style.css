@@ -1,0 +1,20 @@
+:root{--biru:#0a3d91;--merah:#e30613;--kuning:#ffc20e;--abu:#f2f4f8}
+body{background:var(--abu);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.topbar{background:var(--biru);color:#fff;border-bottom:5px solid var(--kuning)}
+.topbar .brand{font-weight:800;letter-spacing:.5px}
+.brand span.r{color:var(--merah);background:#fff;padding:0 6px;border-radius:4px;margin-left:4px}
+.produk{cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .1s}
+.produk:hover{border-color:var(--biru)}
+.produk:active{transform:scale(.97)}
+.produk.habis{opacity:.45;pointer-events:none}
+.produk .kat{font-size:.7rem;color:#6c757d}
+.kategori .btn{border-radius:20px}
+.kategori .btn.active{background:var(--biru);border-color:var(--biru);color:#fff}
+.keranjang{position:sticky;top:12px;max-height:calc(100vh - 24px);display:flex;flex-direction:column}
+.keranjang .daftar{overflow-y:auto;flex:1;min-height:120px}
+.total-box{background:var(--biru);color:#fff;border-radius:10px;padding:12px 16px}
+.total-box .nilai{font-size:1.9rem;font-weight:800;color:var(--kuning)}
+.qty-btn{width:28px;height:28px;padding:0;line-height:1}
+#struk{font-family:"Courier New",monospace;font-size:13px}
+#struk .garis{border-top:1px dashed #000;margin:6px 0}
+@media print{body *{visibility:hidden}#struk,#struk *{visibility:visible}#struk{position:absolute;left:0;top:0;width:100%}}
